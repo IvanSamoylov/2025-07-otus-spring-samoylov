@@ -1,8 +1,12 @@
 package ru.otus.hw.dao;
 
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
 import ru.otus.hw.config.TestFileNameProvider;
+import ru.otus.hw.dao.dto.QuestionDto;
 import ru.otus.hw.domain.Question;
+import ru.otus.hw.exceptions.QuestionReadException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,47 +22,37 @@ public class CsvQuestionDao implements QuestionDao {
 
     @Override
     public List<Question> findAll() {
-        System.out.println("File name " + fileNameProvider.getTestFileName());
-        var is = getFileFromResourceAsStream(fileNameProvider.getTestFileName());
-        printInputStream(is);
-        // Использовать CsvToBean
-        // https://opencsv.sourceforge.net/#collection_based_bean_fields_one_to_many_mappings
-        // Использовать QuestionReadException
-        // Про ресурсы: https://mkyong.com/java/java-read-a-file-from-resources-folder/
-
-        return new ArrayList<>();
+        String testFileName = fileNameProvider.getTestFileName();
+        try (InputStream inputStream = getFileFromResourceAsStream(testFileName)) {
+            List<QuestionDto> questionDtos = parseQuestions(inputStream);
+            return questionDtos.stream()
+                    .map(QuestionDto::toDomainObject)
+                    .toList();
+        } catch (IOException e) {
+            throw new QuestionReadException("Failed to load questions from file: " + testFileName, e);
+        }
     }
 
-
     private InputStream getFileFromResourceAsStream(String fileName) {
-
-        // The class loader that loaded the class
         ClassLoader classLoader = getClass().getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream(fileName);
 
-        // the stream holding the file content
         if (inputStream == null) {
-            throw new IllegalArgumentException("file not found! " + fileName);
+            throw new QuestionReadException("file not found! " + fileName);
         } else {
             return inputStream;
         }
-
     }
-    // print input stream
-    private static void printInputStream(InputStream is) {
 
-        try (InputStreamReader streamReader =
-                     new InputStreamReader(is, StandardCharsets.UTF_8);
-             BufferedReader reader = new BufferedReader(streamReader)) {
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    private List<QuestionDto> parseQuestions(InputStream inputStream) {
+        InputStreamReader reader = new InputStreamReader(inputStream);
+        CsvToBean<QuestionDto> csvToBean = new CsvToBeanBuilder<QuestionDto>(reader)
+                .withType(QuestionDto.class)
+                .withSkipLines(1)
+                .withSeparator(';')
+                .withIgnoreLeadingWhiteSpace(true)
+                .build();
+        return csvToBean.parse();
     }
+
 }
