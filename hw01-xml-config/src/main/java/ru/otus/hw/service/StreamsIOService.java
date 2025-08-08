@@ -1,7 +1,6 @@
 package ru.otus.hw.service;
 
 import java.io.PrintStream;
-import java.util.Scanner;
 
 public class StreamsIOService implements IOService {
     private final PrintStream printStream;
