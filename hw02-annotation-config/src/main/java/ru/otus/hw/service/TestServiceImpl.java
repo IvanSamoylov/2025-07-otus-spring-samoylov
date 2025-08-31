@@ -41,7 +41,7 @@ public class TestServiceImpl implements TestService {
         try {
             int answerIndex = ioService.readIntForRangeWithPrompt(1, answers.size(), "Select correct number",
                     "Incorrect number. Please try again");
-            var studentAnswer = answers.get(answerIndex);
+            var studentAnswer = answers.get(answerIndex - 1);
             return studentAnswer.isCorrect();
         } catch (IllegalArgumentException e) {
             ioService.printLine("Exceeding number of attempts for the question.");
