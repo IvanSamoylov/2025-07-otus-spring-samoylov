@@ -1,0 +1,2 @@
+${AnsiColor.BRIGHT_BLUE}Vanya${AnsiColor.DEFAULT}
+${spring.application.name:${application.title:app}}  ${application.version:}

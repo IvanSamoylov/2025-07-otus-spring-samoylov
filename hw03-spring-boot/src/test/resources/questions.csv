@@ -1,0 +1,4 @@
+# Добавить сюда своих вопросов. Эту строку надо пропустить при настройке CsvToBean (withSkipLines)
+Does coffee contain caffeine?;Science doesn't know this yet%false|Certainly. %true|Absolutely not%false
+Does green tee contain caffeine?;Science doesn't know this yet%false|Certainly. %true|Absolutely not%false
+Does marmalade contain caffeine?;Science doesn't know this yet%false|Certainly. %false|Absolutely not%true
