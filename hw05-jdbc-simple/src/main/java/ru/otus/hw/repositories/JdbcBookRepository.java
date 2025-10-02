@@ -1,5 +1,6 @@
 package ru.otus.hw.repositories;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -26,6 +27,7 @@ public class JdbcBookRepository implements BookRepository {
 
     @Override
     public Optional<Book> findById(long id) {
+        try {
         var book = namedParameterJdbcOperations.queryForObject("""
                 SELECT b.id AS book_id, b.title AS book_title, a.id AS author_id, a.full_name AS author_name,
                 g.id AS genre_id, g.name AS genre_name
@@ -35,6 +37,9 @@ public class JdbcBookRepository implements BookRepository {
                 WHERE b.id = :id
                 """, new MapSqlParameterSource("id", id), new BookRowMapper());
         return Optional.ofNullable(book);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
